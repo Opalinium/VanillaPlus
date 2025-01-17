@@ -93,30 +93,25 @@ public class SpawnDetector implements Listener {
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     private void onWitherSpawn(final CreatureSpawnEvent event) {
-        // Spawned entity must be a Wither
         if (event.getSpawnReason() != SpawnReason.BUILD_WITHER || event.getEntityType() != EntityType.WITHER) return;
         if (!(event.getEntity() instanceof Wither)) return;
 
         final Wither wither = (Wither) event.getEntity();
-        
-        //Find most likely spawner
+
         final Player spawner = this.getCandidateSpawner(wither);
-        if (spawner == null) return;
 
-        //Test for Bad Omen
-        final PotionEffect badOmen = spawner.getPotionEffect(PotionEffectType.BAD_OMEN);
-        if (badOmen == null) return;
-
-        //Check cooldown
         if (!this.cooldownManager.handleCooldownOnSpawn(spawner, wither.getLocation())) {
-            if (!this.produceRegularWitherOnFailedSpawn) event.setCancelled(true);
+            if (!this.produceRegularWitherOnFailedSpawn) {
+                event.setCancelled(true);
+            }
             return;
         }
 
-        final int level = Utils.clamp(badOmen.getAmplifier() + 1, 0, MAX_LEVEL);
+        final int level = 3;
 
-        // *** Fire Ominous Wither Spawn event ***
-        this.plugin.getServer().getPluginManager().callEvent(new OminousWitherSpawnEvent(wither, spawner, level, OminousWitherSpawnEvent.SpawnReason.BUILD));
+        this.plugin.getServer().getPluginManager().callEvent(
+                new OminousWitherSpawnEvent(wither, spawner, level, OminousWitherSpawnEvent.SpawnReason.BUILD)
+        );
     }
 
     /**
